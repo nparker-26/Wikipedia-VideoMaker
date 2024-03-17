@@ -161,3 +161,9 @@ cython_debug/
 
 # Music files
 /music
+
+# all pycache files
+__pycache__/
+
+# even in the text folder
+text/__pycache__/
