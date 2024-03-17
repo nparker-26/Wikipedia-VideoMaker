@@ -7,7 +7,7 @@ import random
 import time
 
 # File management imports
-import glob
+from glob import glob
 from natsort import natsorted
 import shutil
 import string
@@ -44,9 +44,9 @@ from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 from newspaper import Article
 
 # OpenVoice Local Files
-from se_extractor import *
+from se_extractor import get_se
 from api import BaseSpeakerTTS, ToneColorConverter
 
 # Export all these for use in other files
 
-__all__ = ['sys', 'os', 'subprocess', 're', 'random', 'time', 'glob', 'natsorted', 'shutil', 'string', 'wikipedia', 'nltk', 'stable_whisper', 'pysrt', 'Cropper', 'cv2', 'ssl', 'Image', 'open_clip', 'BingImageCrawler', 'torch', 'librosa', 'AutoTokenizer', 'AutoModelForSeq2SeqLM', 'Article', 'BaseSpeakerTTS', 'ToneColorConverter']
+__all__ = ['sys', 'os', 'subprocess', 're', 'random', 'time', 'glob', 'natsorted', 'shutil', 'string', 'wikipedia', 'nltk', 'stable_whisper', 'pysrt', 'Cropper', 'cv2', 'ssl', 'Image', 'open_clip', 'BingImageCrawler', 'torch', 'librosa', 'AutoTokenizer', 'AutoModelForSeq2SeqLM', 'Article', 'BaseSpeakerTTS', 'ToneColorConverter', 'get_se']

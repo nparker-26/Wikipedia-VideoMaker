@@ -1,42 +1,4 @@
-# System imports
-import sys
-import os
-import subprocess
-import re
-import random
-
-# File management imports
-import glob
-from natsort import natsorted
-import shutil
-import string
-
-# Wikipedia and NLP imports
-import wikipedia
-import nltk.data
-
-# Stable Whisper (Subtitles)
-import stable_whisper
-import pysrt
-
-# Image Management
-from cropimage import Cropper
-import cv2
-import ssl
-ssl._create_default_https_context = ssl._create_unverified_context
-from PIL import Image
-import open_clip
-
-# PyTorch
-import torch
-
-# Article Summarization
-from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
-from newspaper import Article
-
-# OpenVoice Local Files
-from se_extractor import *
-from api import BaseSpeakerTTS, ToneColorConverter
+from mods import *
 
 def WikipediaSummaryGet(subject):
     summary = wikipedia.summary(subject, auto_suggest=False)
