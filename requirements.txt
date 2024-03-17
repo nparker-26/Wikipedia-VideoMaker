@@ -1,0 +1,14 @@
+natsort
+wikipedia
+nltk
+stable-ts
+pysrt
+cropimage
+opencv-python-headless
+Pillow
+open-clip-torch
+icrawler
+torch
+librosa
+transformers
+newspaper3k
