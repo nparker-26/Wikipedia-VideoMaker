@@ -1,0 +1,16 @@
+{
+    "ffmpeg_path": "C:\\Users\\natha\\Desktop\\Audviya\\",
+    "path": "C:\\Users\\natha\\Desktop\\Audviya\\V10\\",
+    "subject": "Joseph Brant",
+    "downloader_threads": 4,
+    "storage_root_dir": "C:\\Users\\natha\\Desktop\\Audviya\\",
+    "keyword": "Joseph Brant",
+    "offset": 0,
+    "max_num": 10,
+    "tokenizer": "facebook/bart-large-cnn",
+    "model": "facebook/bart-large-cnn",
+    "return_tensors": "pt",
+    "max_length": 512,
+    "truncation": true,
+    "return_dict_in_generate": true
+}
