@@ -1,31 +1,6 @@
-import sys
-import glob
-import wikipedia
-import nltk.data
-import nltk.data
-import stable_whisper
-import ssl
-from cropimage import Cropper
-import re
-import cv2
-import torch
-from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
-from newspaper import Article
-ssl._create_default_https_context = ssl._create_unverified_context
-from se_extractor import *
-from api import BaseSpeakerTTS, ToneColorConverter
-import os
-import subprocess
-from natsort import natsorted
-import shutil
-import pysrt
-from sentence_transformers import util as sentence_util
-from PIL import Image
-import open_clip
-import random
-import string
+from mods import *
 
-def WikiepdiaSummaryGet(subject):
+def WikipediaSummaryGet(subject):
     summary = wikipedia.summary(subject, auto_suggest=False)
     summary = SummaryChanges(summary)
     print(summary)
@@ -130,28 +105,28 @@ def CropImage(subject, path):
         except:
             print("Could not delete")
 
-def ImageCompare(subject, path):
-    entries = glob(r'C:\\Users\\natha\Desktop\\Audviya\\' + subject +r'\\*.jpg')
-    entries = natsorted(entries)
-    deletes = []
-    for entry in entries[:-1]:
-        if entries.index(entry) < 6:
-            indexstr = str(entries.index(entry))
-            indexstr2 = str(entries.index(entry) + 1)
-            image1 = path + '\\' + indexstr + '.jpg'
-            image2 = path + '\\' + indexstr2 + '.jpg'
-            score = str(round(generateScore(image1, image2), 2))
-            print(f"similarity Score " + indexstr + " to " + indexstr2 + ":", score)
-            if float(score) > 90:
-                deletes.append(path + '\\' + indexstr2 + '.jpg')
-
-    for delete in deletes:
-        os.remove(delete)
-    entries = glob(r'C:\\Users\\natha\Desktop\\Audviya\\' + subject +r'\\*.jpg')
-    entries = natsorted(entries)
-    for entry in entries:
-        indexstr = str(entries.index(entry))
-        os.rename(entry, path + '\\' + indexstr + ".jpg")
+#def ImageCompare(subject, path):
+#    entries = glob(r'C:\\Users\\natha\Desktop\\Audviya\\' + subject +r'\\*.jpg')
+#    entries = natsorted(entries)
+#    deletes = []
+#    for entry in entries[:-1]:
+#        if entries.index(entry) < 6:
+#            indexstr = str(entries.index(entry))
+#            indexstr2 = str(entries.index(entry) + 1)
+#            image1 = path + '\\' + indexstr + '.jpg'
+#            image2 = path + '\\' + indexstr2 + '.jpg'
+#            score = str(round(generateScore(image1, image2), 2))
+#            print(f"similarity Score " + indexstr + " to " + indexstr2 + ":", score)
+#            if float(score) > 90:
+#                deletes.append(path + '\\' + indexstr2 + '.jpg')
+#
+#    for delete in deletes:
+#        os.remove(delete)
+#    entries = glob(r'C:\\Users\\natha\Desktop\\Audviya\\' + subject +r'\\*.jpg')
+#    entries = natsorted(entries)
+#    for entry in entries:
+#        indexstr = str(entries.index(entry))
+#        os.rename(entry, path + '\\' + indexstr + ".jpg")
 
    
 
@@ -764,25 +739,6 @@ def SummaryChanges(summary):
     for key, value in lookup_table.items():
         summary = summary.replace(key, value)
     return summary
-
-
-#Find similarity score in images. It is good but a little too slow I think #maybe when MOJO comes out it will be better and can apply
-device = "cuda" if torch.cuda.is_available() else "cpu"
-model, _, preprocess = open_clip.create_model_and_transforms('ViT-B-16-plus-240', pretrained="laion400m_e32")
-model.to(device)
-def imageEncoder(img):
-    img1 = Image.fromarray(img).convert('RGB')
-    img1 = preprocess(img1).unsqueeze(0).to(device)
-    img1 = model.encode_image(img1)
-    return img1
-def generateScore(image1, image2):
-    test_img = cv2.imread(image1, cv2.IMREAD_UNCHANGED)
-    data_img = cv2.imread(image2, cv2.IMREAD_UNCHANGED)
-    img1 = imageEncoder(test_img)
-    img2 = imageEncoder(data_img)
-    cos_scores = sentence_util.pytorch_cos_sim(img1, img2)
-    score = round(float(cos_scores[0][0])*100, 2)
-    return score
 
 #change the size of the title based on how long the article title is
 def TitleFontSize(subject): #TODO change based on if it is TikTok or YouTube video with lower or not cause then want to make higher

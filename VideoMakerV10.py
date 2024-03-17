@@ -1,11 +1,9 @@
-import sys
-import time
+from mods import *
+import FunctionsV10
+
+
 start_time = time.time()
 
-from icrawler.builtin import BingImageCrawler
-import FunctionsV10 #this is a local python file
-import re
-import librosa
 
 # Check if command line arguments were passed
 if len(sys.argv) > 1:
@@ -20,7 +18,7 @@ for subject in subjects:
     path = 'C:\\Users\\natha\\Desktop\\Audviya\\'+ subject
 
     #Wikipedia
-    summary, sentences, ImageCount = FunctionsV10.WikiepdiaSummaryGet(subject)
+    summary, sentences, ImageCount = FunctionsV10.WikipediaSummaryGet(subject)
     print(len(sentences))
 
     #URL summary
@@ -52,7 +50,7 @@ for subject in subjects:
     print(f"The cropping script took {end_time - start_time} seconds to run.")
 
     #make sure no images next to each other are the same
-    FunctionsV10.ImageCompare(subject, path)
+    #FunctionsV10.ImageCompare(subject, path)
 
     end_time = time.time()
     print(f"The Image Compare took {end_time - start_time} seconds to run.")
