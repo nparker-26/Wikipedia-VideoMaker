@@ -1,3 +1,4 @@
+import sys
 import time
 start_time = time.time()
 
@@ -6,7 +7,13 @@ import FunctionsV10 #this is a local python file
 import re
 import librosa
 
-subjects = ["Steven Isserlis"]
+# Check if command line arguments were passed
+if len(sys.argv) > 1:
+    subjects = sys.argv[1:]
+else:
+    print("Please provide a subject as a command line argument.")
+    sys.exit(1)
+
 for subject in subjects:
 
     #subject = "Joseph Brant" #TODO allow to be URL or subject of some kind
