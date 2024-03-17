@@ -385,7 +385,7 @@ def SubTitle(subject, path, Subtitle_Summary):
 
 def AddMusic(subject, path):
     #for music path
-    music_path = 'Moonlight_Sonata.wav'
+    music_path = 'C:\\Users\\natha\\Desktop\\Audviya\\Wikipedia-VideoMaker\\Wikipedia-VideoMaker\\music\\Moonlight_Sonata.wav'
     # Copy the file to the destination directory
     shutil.copy(music_path, path)
     duration = str(librosa.get_duration(filename=path + '\\'+ subject + '_pre.mp4'))

@@ -161,3 +161,8 @@ cython_debug/
 
 # Music files
 /music
+
+#checkpoints for OpenVoice Voice Cloning
+/checkpoints
+
+/text/__pycache__
