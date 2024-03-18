@@ -12,3 +12,7 @@ torch
 librosa
 transformers
 newspaper3k
+flask
+facenet-pytorch
+pydub
+
