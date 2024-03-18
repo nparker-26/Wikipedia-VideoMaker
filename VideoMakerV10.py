@@ -121,7 +121,7 @@ for subject in subjects:
     else:
         FunctionsV10.DeleteAll(path)
     '''
-    #FunctionsV10.DeleteAll(path)
+    FunctionsV10.DeleteAll(path)
 
     end_time = time.time()
     print(f"The total script took {end_time - start_time} seconds to run.")
