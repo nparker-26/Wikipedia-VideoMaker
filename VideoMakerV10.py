@@ -6,17 +6,17 @@ start_time = time.time()
 
 
 # Check if command line arguments were passed
-if len(sys.argv) > 1:
-    subjects = sys.argv[1:]
+if len(sys.argv) > 2:
+    email = sys.argv[1] #email is not passed in quotations
+    subjects = sys.argv[2:] #subject must be passed in quotations
 else:
-    print("Please provide a subject as a command line argument.")
+    print("Please provide a subject and at least one email address as command line arguments.")
     sys.exit(1)
 
 for subject in subjects:
 
-    #subject = "Joseph Brant" #TODO allow to be URL or subject of some kind
     path = 'C:\\Users\\natha\\Desktop\\Audviya\\'+ subject
-
+    
     #Wikipedia
     summary, sentences, ImageCount = FunctionsV10.WikipediaSummaryGet(subject)
     print(len(sentences))
@@ -83,10 +83,17 @@ for subject in subjects:
     print(f"The total script took {end_time - start_time} seconds to run.")
     
     final_path = FunctionsV10.AddMusic(subject, path)
+    
+    #TODO change email to something in Azure DevOps
+    sender_email = 'nathansparker26@gmail.com'
+    sender_password = 'xiba nczu ibvz yeav' #this is an app password
+    receiver_email = email
+
+    FunctionsV10.send_email(sender_email, sender_password, receiver_email, subject, path)
 
     # #try adding delete to remove problems #This is bad
     # FunctionsV10.DeletePartAll(path, subject)
-
+    '''
     RanThrough = 0
 
     def RunThrough(RanThrough, sentences):
@@ -113,6 +120,8 @@ for subject in subjects:
         RunThrough(RanThrough, sentences)
     else:
         FunctionsV10.DeleteAll(path)
+    '''
+    #FunctionsV10.DeleteAll(path)
 
     end_time = time.time()
     print(f"The total script took {end_time - start_time} seconds to run.")
