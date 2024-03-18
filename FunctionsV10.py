@@ -187,41 +187,6 @@ def BaseAudioImageZoomMargin(sentences, path, subject):
         print(command)
         subprocess.call(command,cwd=path, shell=True)
 
-def VideoParts(path):
-    LST=glob(path + '\\Audio*.wav')
-    print(LST)
-    LST = natsorted(LST)
-    print(LST)
-    durations = []
-    index = -1 #setup for end case
-    for i in LST:
-        indexstr = str(LST.index(i))
-        duration = librosa.get_duration(filename=path + '\\Audio' + indexstr +'.wav')
-        durations.append(duration)
-    print(durations)
-    for count in durations:
-    # Use slicing to get the first i elements from the list
-        index = durations.index(count)
-        current_sum = sum(durations[:index]) + 1
-        print(current_sum)
-        if current_sum > 60 and len(durations[:index]) != len(durations):
-            index = index - 1
-            print("This is how many videos will be in this video : " + str(index))
-            break
-        elif current_sum < 60:
-            print("This is how many videos will be in this video so far: " + str(index))
-    
-    #adds the last part when there are is only one more part and the number of videos is greater than 1
-    if (len(durations) - 1) == index and len(durations) > 1:
-        index = index + 1
-    return index
-    #Get the number of videos that will be in the first part
-    #Create a video on that labeled by the number of times the function was called for "Part X"
-    #remove the Videos that were a part of that first one
-    #if there is only one video left, do subtitle with Part "X" and end it all
-    #if there is more, do the script again from the Video Parts section
-    #if there is none, end the script
-
     
 def get_length(filename):
   result=subprocess.run(["ffprobe", "-v", "error", "-show_entries",
@@ -368,9 +333,36 @@ def AddMusic(subject, path):
     command = ('ffmpeg -y -i "'+ subject +'_pre".mp4 -i Moonlight_Sonata.wav -filter_complex "[1:a]volume=.5[a2]; [0:a][a2]amix=inputs=2[a]" -t '+ duration +' -map 0:v -map "[a]" -c:v copy "'+ subject +'".mp4')
     subprocess.call(command,cwd=path, shell=True)
     final_path = path + '\\'+ subject +'.mp4'
-    shutil.copy(final_path, 'C:\\Users\\natha\\Desktop\\Audviya\\V10')
+    #shutil.copy(final_path, 'C:\\Users\\natha\\Desktop\\Audviya\\V10')
 
     return final_path
+
+def send_email(sender_email, sender_password, receiver_email, subject, path):
+    
+    video_path = path + '\\' + subject + '.mp4'
+    # Create a multipart message
+    msg = MIMEMultipart()
+    msg['From'] = sender_email
+    msg['To'] = receiver_email
+    msg['Subject'] = 'Wikipedia Video: ' + subject
+
+    # Attach the video file
+    with open(video_path, 'rb') as attachment:
+        part = MIMEBase('application', 'octet-stream')
+        part.set_payload(attachment.read())
+    encoders.encode_base64(part)
+    part.add_header('Content-Disposition', f'attachment; filename= ' + subject + '.mp4')
+    msg.attach(part)
+
+    # Connect to the SMTP server
+    server = smtplib.SMTP('smtp.gmail.com', 587)
+    server.starttls()
+    server.login(sender_email, sender_password)
+    app_pass = 'xiba nczu ibvz yeav'
+
+    # Send the email
+    server.send_message(msg)
+    server.quit()
 
 def DeletePartAll(path, subject): #not necessary it looks like
     LST = []
@@ -389,6 +381,42 @@ def DeletePartAll(path, subject): #not necessary it looks like
             continue
 
 ################################
+################################
+        
+def VideoParts(path):
+    LST=glob(path + '\\Audio*.wav')
+    print(LST)
+    LST = natsorted(LST)
+    print(LST)
+    durations = []
+    index = -1 #setup for end case
+    for i in LST:
+        indexstr = str(LST.index(i))
+        duration = librosa.get_duration(filename=path + '\\Audio' + indexstr +'.wav')
+        durations.append(duration)
+    print(durations)
+    for count in durations:
+    # Use slicing to get the first i elements from the list
+        index = durations.index(count)
+        current_sum = sum(durations[:index]) + 1
+        print(current_sum)
+        if current_sum > 60 and len(durations[:index]) != len(durations):
+            index = index - 1
+            print("This is how many videos will be in this video : " + str(index))
+            break
+        elif current_sum < 60:
+            print("This is how many videos will be in this video so far: " + str(index))
+    
+    #adds the last part when there are is only one more part and the number of videos is greater than 1
+    if (len(durations) - 1) == index and len(durations) > 1:
+        index = index + 1
+    return index
+    #Get the number of videos that will be in the first part
+    #Create a video on that labeled by the number of times the function was called for "Part X"
+    #remove the Videos that were a part of that first one
+    #if there is only one video left, do subtitle with Part "X" and end it all
+    #if there is more, do the script again from the Video Parts section
+    #if there is none, end the script
 
 ## Figure out how to make the audios be the duration instead of the videos
 def CrossFadePart(path,subject, index, RanThrough): #,subject
