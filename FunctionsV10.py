@@ -142,7 +142,7 @@ def BaseAudioImageZoomMargin(sentences, path, subject):
     device="cuda:0" if torch.cuda.is_available() else "cpu"
     ScaleImage = '''[0:v]scale=w=1080:h=-1[ScaleImage]'''
     ScaleVideo = '''[ScaleImage]scale=6000:-1[ScaleVideo]'''
-    ZoomPan = '''[ScaleVideo]zoompan=z='zoom+0.0015':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2):d=500:s=1080X1080'[zoom]'''
+    ZoomPan = '''[ScaleVideo]zoompan=z='zoom+0.0010':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2):d=500:s=1080X1080'[zoom]'''
     Margin = '''[zoom]pad=width=iw:height=ih+2*420:x=0:y=420:color=black'''
     filter_complex = '-filter_complex "' + ScaleImage + ', ' + ScaleVideo + ', ' + ZoomPan + ', ' + Margin + '"' #this might be slower but idk
 
@@ -280,7 +280,7 @@ def CrossFade(path,subject): #,subject
     print(FLT)
 
     #write out the filter statment with all the other end stuff
-    s=s+f' -filter_complex "{FLT}" -map {PDV} -map {audio_map} -c:v h264_nvenc -cq 18 -c:a aac -q:a 4 -map_metadata -1 -pix_fmt yuv420p -s:v 1080x1920 '+ ffmpeg_path +'VideoUnsub.mp4 -y -hide_banner'
+    s=s+f' -filter_complex "{FLT}" -map {PDV} -map {audio_map} -c:v hevc_nvenc -cq 18 -c:a aac -q:a 4 -map_metadata -1 -pix_fmt yuv420p -s:v 1080x1920 '+ ffmpeg_path +'VideoUnsub.mp4 -y -hide_banner'
     print(s)
     os.system(s)
     #this is the best thing ever https://www.reddit.com/r/ffmpeg/comments/u3z5y0/cross_fade_arbitrary_number_of_videos_ffmpeg/
