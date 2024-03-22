@@ -324,7 +324,7 @@ def SubTitle(subject, path, Subtitle_Summary):
     print(command)
     subprocess.call(command,cwd=path, shell=True)
 
-    #for final path
+    #for final path #Not in use as of 03/22/34
     final_path = path + '\\' + subject + '_pre.mp4' 
     # Copy the file to the destination directory
     #shutil.copy(final_path, 'C:\\Users\\natha\\Desktop\\Audviya\\V10')
