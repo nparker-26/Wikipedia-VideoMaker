@@ -82,7 +82,8 @@ for subject in subjects:
     end_time = time.time()
     print(f"The total script took {end_time - start_time} seconds to run.")
     
-    final_path = FunctionsV10.AddMusic(subject, path)
+    #Music is not part of this iteration
+    #final_path = FunctionsV10.AddMusic(subject, path)
     
     #TODO change email to something in Azure DevOps
     sender_email = 'nathansparker26@gmail.com'

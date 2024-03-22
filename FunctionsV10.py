@@ -314,7 +314,13 @@ def SubTitle(subject, path, Subtitle_Summary):
     force_style = '''force_style=\'Alignment=2,OutlineColour=&H100000000,BorderStyle=3,Outline=1,Shadow=0,Fontsize=20,MarginL=5,MarginV=40\''''
     draw_text = '''drawtext=text=''' + subject + ''':x=(w-text_w)/2:y=290:fontsize='''+TitleFontSize(subject)+''':fontcolor=white:fontfile=NotoSans_Condensed-SemiBold.ttf"'''
     #TODO make the title appear no matter how long it is
-    command = ('ffmpeg -y -i VideoUnsub.mp4 -filter_complex "'+ subtitles + force_style +', '+ draw_text +' "'+ subject +'_pre".mp4')
+    command = ('ffmpeg -y -i VideoUnsub.mp4 -filter_complex "'+ subtitles + force_style +', '+ draw_text +' "'+ subject +'_preResolution".mp4')
+    print(command)
+    subprocess.call(command,cwd=path, shell=True)
+
+    #makes the video resolution different for smaller emailing of files. Also placed here since we are not adding music right now
+    resolution = 'scale=480:854'
+    command = ('ffmpeg -y -i "'+ subject +'_preResolution".mp4 -vf "'+ resolution +'" -c:a copy "'+ subject +'".mp4')
     print(command)
     subprocess.call(command,cwd=path, shell=True)
 
