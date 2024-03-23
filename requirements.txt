@@ -4,7 +4,8 @@ nltk
 stable-ts
 pysrt
 cropimage
-opencv-python-headless
+#opencv-python-headless
+opencv-contrib-python
 Pillow
 open-clip-torch
 icrawler
@@ -15,4 +16,11 @@ newspaper3k
 flask
 facenet-pytorch
 pydub
+faster-whisper
+whisper-timestamped
+dtw-python
+inflect
+unidecode
+eng_to_ipa
+wavmark
 

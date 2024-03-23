@@ -167,3 +167,7 @@ __pycache__/
 
 # even in the text folder
 text/__pycache__/
+
+# checkpoints
+/checkpoints
+

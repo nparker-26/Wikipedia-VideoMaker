@@ -1,4 +1,3 @@
-from flask import Flask, request
 from mods import *
 import FunctionsV10
 
@@ -13,10 +12,11 @@ app.config.update(
 
 @app.route('/process', methods=['POST'])
 def process():
+    email = request.json['email']
     subject = request.json['subject']
     start_time = time.time()
-
-    path = 'C:\\Users\\natha\\Desktop\\Audviya\\'+ subject
+    
+    path = '/data/' + subject
 
     summary, sentences, ImageCount = FunctionsV10.WikipediaSummaryGet(subject)
 
@@ -73,4 +73,5 @@ def process():
     return {"message": f"The total script took {end_time - start_time} seconds to run."}
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0', port=5000)
+
