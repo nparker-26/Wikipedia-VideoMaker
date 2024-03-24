@@ -94,7 +94,12 @@ def BaseAudioImageZoomMargin(sentences, path, subject):
     ckpt_base = os.path.join(base_path, 'checkpoints', 'base_speakers', 'EN')
     ckpt_converter = os.path.join(base_path, 'checkpoints', 'converter')
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
-    filter_complex = '[0:v]scale=w=1080:h=-1[ScaleImage], [ScaleImage]scale=6000:-1[ScaleVideo], [ScaleVideo]zoompan=z=\'zoom+0.0015\':x=\'iw/2-(iw/zoom/2)\':y=\'ih/2-(ih/zoom/2):d=500:s=1080X1080\'[zoom], [zoom]pad=width=iw:height=ih+2*420:x=0:y=420:color=black'
+    ScaleImage = '''[0:v]scale=w=1080:h=-1[ScaleImage]'''
+    ScaleVideo = '''[ScaleImage]scale=6000:-1[ScaleVideo]'''
+    ZoomPan = '''[ScaleVideo]zoompan=z='zoom+0.0010':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2):d=500:s=1080X1080'[zoom]'''
+    Margin = '''[zoom]pad=width=iw:height=ih+2*420:x=0:y=420:color=black'''
+    filter_complex = '-filter_complex "' + ScaleImage + ', ' + ScaleVideo + ', ' + ZoomPan + ', ' + Margin + '"' #this might be slower but idk
+    print(filter_complex)
 
     base_speaker_tts = BaseSpeakerTTS(os.path.join(ckpt_base, 'config.json'), device=device)
     base_speaker_tts.load_ckpt(os.path.join(ckpt_base, 'checkpoint.pth'))
@@ -115,20 +120,10 @@ def BaseAudioImageZoomMargin(sentences, path, subject):
         base_speaker_tts.tts(text=sentence, output_path=src_path, speaker='default', language='English', speed=1.1)
 
         tone_color_converter.convert(audio_src_path=src_path, src_se=source_se, tgt_se=target_se, output_path=save_path, message="@MyShell")
-        duration = str(librosa.get_duration(filename=save_path) + 1)  # +1 for padding
-        command = f'ffmpeg -y -framerate 1 -loop 1 -i {indexstr}.jpg -i Audio{indexstr}.wav {filter_complex} -t {duration} -pix_fmt yuv420p Video{indexstr}.mp4'
-        subprocess.call(command, cwd=path, shell=True)
-
-        tone_color_converter.convert(
-            audio_src_path=src_path, 
-            src_se=source_se, 
-            tgt_se=target_se, 
-            output_path=save_path,
-            message="@MyShell")
-        duration = str(librosa.get_duration(filename=os.path.join(path, 'Audio' + indexstr +'.wav')) + 1) #+ 1 is for padding when doing audio
+        duration = str(librosa.get_duration(path=save_path) + 1)  # +1 for padding
         command = 'ffmpeg -y -framerate 1 -loop 1 -i '+ indexstr + '.jpg -i Audio' + indexstr + '.wav ' + filter_complex + ' -t ' + duration + ' -pix_fmt yuv420p Video' + indexstr + '.mp4'
         print(command)
-        subprocess.call(command,cwd=path, shell=True)
+        subprocess.call(command, cwd=path, shell=True)
 
 def VideoParts(path):
     full_path = path
@@ -167,60 +162,86 @@ def get_length(filename):
   return float(result.stdout)
 
 def CrossFade(path,subject):
-
-
-    full_path = path
-
+    ffmpeg_subject = str('"' + subject +'"')
+    ffmpeg_path = '/data/'+ ffmpeg_subject +'/'
 
     LST=[]
-    for f in os.listdir(full_path):
+    DIR= path + '/'
+    for f in os.listdir(DIR):
         if (f.endswith(".mp4")):
             print(f)
             LST.append(f)
+    #make all of the video items
     LST = natsorted(LST)
     FLT=""
+    #set offset and duration
     OFS=0
     XFD=1
     CNT=0
     XFDA=1
 
+    #make the input different than what is put into ffmpeg because I did not set up the directories well with CWD in ffmpeg call
     INP=[]
-    for f in LST:
-        full_file_path = os.path.join(full_path, f)
-        INP.append(f' -i {full_file_path}')
+    FFMPEG_List=[]
+    f=ffmpeg_path+LST[0]
+    INP.append(f' -i {f}')
+    f=DIR+LST[0]
+    FFMPEG_List.append(f' -i {f}')
     PDV='[0:v]'
 
+    #set up video concat with fade for every video and crossfading
     for i in range(len(LST)-1):
-        OFS=OFS+get_length(os.path.join(full_path, LST[i]))-XFD
+        OFS=OFS+get_length(f)-XFD
         FLT=FLT+f'{PDV}'
         CNT=i+1
         PDV=f'[{CNT}v]'
         FLT=FLT+f'[{CNT}:v]xfade=transition=fade:offset={OFS}:duration={XFD}{PDV}'
         if i < len(LST)-2:
             FLT=FLT+";"
-
+        f=ffmpeg_path+LST[i+1]
+        INP.append(f' -i {f}')
+        INP = (natsorted(INP))
+        f=DIR+LST[i+1]
+        FFMPEG_List.append(f' -i {f}')
+    
+    #do everything like b4 but with audio
     PDA = '[0:a]'
     audios = []
-    for i in range(len(LST)):
-        CNT = i+1
+    for i in LST:
+        index = LST.index(i)
+        indexstr = str(LST.index(i))
+        CNT = index+1
         next_audio = f'[{CNT}a]'
         FLTA = PDA + f'[{CNT}:a]acrossfade={XFDA}:c1=nofade{next_audio}'
-        if i < len(LST)-1:
-            FLTA=FLTA+";"
+        FLTA=FLTA+";"
         PDA = next_audio
         audios.append(FLTA)
+    print(audios)
     audios.pop()
     audios = ''.join(audios)
+    audios = audios[:-1]
+    #print(audios)
+
+    #remove the last audio bc for some reason an audio gets copied over multiple times
     position_of_character = audios.rfind('[')
-    audio_map = audios[position_of_character:] if position_of_character != -1 else print("Specific character not found in the string.")
+
+    if position_of_character != -1:
+        audio_map = audios[position_of_character:]
+    else:
+        print("Specific character not found in the string.")
     s='ffmpeg'
     for t in INP:
         s=s+t
+    INP = (natsorted(INP))
+
+    #combine everything for the filters and the audios
     FLT = FLT + ';' + audios
     print(FLT)
-    command = f'ffmpeg -filter_complex "{FLT}" -map {PDV} -map {audio_map} -c:v h264_nvenc -cq 18 -c:a aac -q:a 4 -map_metadata -1 -pix_fmt yuv420p -s:v 1080x1920 "{os.path.join(full_path, "VideoUnsub.mp4")}" -y -hide_banner'
-    print(command)
-    subprocess.run(command, shell=True, check=True)
+
+    #write out the filter statment with all the other end stuff # TODO make hevc_nvenc work (issue using CUDA effectively)
+    s=s+f' -filter_complex "{FLT}" -map {PDV} -map {audio_map} -c:v libx265 -cq 18 -c:a aac -q:a 4 -map_metadata -1 -pix_fmt yuv420p -s:v 1080x1920 '+ ffmpeg_path +'VideoUnsub.mp4 -y -hide_banner'
+    print(s)
+    os.system(s)
 
 def SubTitle(subject, path, Subtitle_Summary):
     model = stable_whisper.load_model("base")
@@ -239,9 +260,44 @@ def SubTitle(subject, path, Subtitle_Summary):
     subtitles = '''subtitles=VideoFinal.srt:'''
     force_style = '''force_style=\'Alignment=2,OutlineColour=&H100000000,BorderStyle=3,Outline=1,Shadow=0,Fontsize=20,MarginL=5,MarginV=40\''''
     draw_text = '''drawtext=text=''' + subject + ''':x=(w-text_w)/2:y=290:fontsize='''+TitleFontSize(subject)+''':fontcolor=white:fontfile=NotoSans_Condensed-SemiBold.ttf"'''
-    command = ('ffmpeg -y -i VideoUnsub.mp4 -filter_complex "'+ subtitles + force_style +', '+ draw_text +' "'+ subject +'_pre".mp4')
+    command = ('ffmpeg -y -i VideoUnsub.mp4 -filter_complex "'+ subtitles + force_style +', '+ draw_text +' "'+ subject +'_preResolution".mp4')
     print(command)
-    subprocess.call(command,cwd=full_path, shell=True)
+    subprocess.call(command,cwd=path, shell=True)
+
+    #makes the video resolution different for smaller emailing of files. Also placed here since we are not adding music right now
+    resolution = 'scale=480:854'
+    command = ('ffmpeg -y -i "'+ subject +'_preResolution".mp4 -vf "'+ resolution +'" -c:a copy "'+ subject +'".mp4')
+    print(command)
+    subprocess.call(command,cwd=path, shell=True)
+
+def send_email(sender_email, sender_password, receiver_email, subject, path):
+    
+    video_path = path + '/' + subject + '.mp4'
+    # Create a multipart message
+    msg = MIMEMultipart()
+    msg['From'] = sender_email
+    msg['To'] = receiver_email
+    msg['Subject'] = 'Wikipedia Video: ' + subject
+
+    # Attach the video file
+    with open(video_path, 'rb') as attachment:
+        part = MIMEBase('application', 'octet-stream')
+        part.set_payload(attachment.read())
+    encoders.encode_base64(part)
+    part.add_header('Content-Disposition', f'attachment; filename= ' + subject + '.mp4')
+    msg.attach(part)
+
+    # Connect to the SMTP server
+    server = smtplib.SMTP('smtp.gmail.com', 587)
+    server.starttls()
+    server.login(sender_email, sender_password)
+    app_pass = 'xiba nczu ibvz yeav'
+
+    # Send the email
+    server.send_message(msg)
+    server.quit()
+    #test
+    print(msg)
 
 def AddMusic(subject, path):
     music_path = os.path.join(base_path, 'Wikipedia-VideoMaker', 'Wikipedia-VideoMaker', 'music', 'Moonlight_Sonata.wav')

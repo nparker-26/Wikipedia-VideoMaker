@@ -40,6 +40,16 @@ def process():
 
     FunctionsV10.SubTitle(subject, path, Subtitle_Summary)
 
+    sender_email = 'nathansparker26@gmail.com'
+    sender_password = 'xiba nczu ibvz yeav' #this is an app password
+    receiver_email = email
+
+    FunctionsV10.send_email(sender_email, sender_password, receiver_email, subject, path)
+
+    FunctionsV10.DeleteAll(path)
+
+    ################ For future use potentially ##############
+    '''
     final_path = FunctionsV10.AddMusic(subject, path)
 
     RanThrough = 0
@@ -69,6 +79,7 @@ def process():
     else:
         FunctionsV10.DeleteAll(path)
 
+    '''
     end_time = time.time()
     return {"message": f"The total script took {end_time - start_time} seconds to run."}
 
