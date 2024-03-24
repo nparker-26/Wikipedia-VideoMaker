@@ -15,9 +15,9 @@ RUN python -m nltk.downloader punkt
 
 COPY . .
 
-EXPOSE 80
+EXPOSE 5000
 
 CMD ["python", "VideoMakerV10.py"]
 
 # To Run:
-# docker run -p 4000:80 -v "C:\Users\robbi\OneDrive\Documents\GitHub\WikiVideo\Wikipedia-VideoMaker\app\data:/app/data" wikivideo:latest
+# docker run -p 5000:5000 -v "C:\Users\robbi\OneDrive\Documents\GitHub\WikiVideo\Wikipedia-VideoMaker\app\data:/app/data" wikivideo:latest
