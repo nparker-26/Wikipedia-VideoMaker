@@ -3,13 +3,6 @@ import FunctionsV10
 
 app = Flask(__name__)
 
-# Set the server configuration
-app.config.update(
-    DEBUG=True,
-    SECRET_KEY='A very random and complex, non-guessable key. Something like this might work.',
-    SERVER_NAME='localhost:5000',
-)
-
 @app.route('/process', methods=['POST'])
 def process():
     email = request.json['email']
@@ -84,5 +77,5 @@ def process():
     return {"message": f"The total script took {end_time - start_time} seconds to run."}
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=True, host='0.0.0.0', port=80)
 
