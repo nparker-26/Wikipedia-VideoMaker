@@ -94,10 +94,10 @@ def BaseAudioImageZoomMargin(sentences, path, subject):
     ckpt_base = os.path.join(base_path, 'checkpoints', 'base_speakers', 'EN')
     ckpt_converter = os.path.join(base_path, 'checkpoints', 'converter')
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
-    ScaleImage = '''[0:v]scale=w=1080:h=-1[ScaleImage]'''
+    ScaleImage = '''[0:v]scale=w=480:h=-1[ScaleImage]'''
     ScaleVideo = '''[ScaleImage]scale=6000:-1[ScaleVideo]'''
-    ZoomPan = '''[ScaleVideo]zoompan=z='zoom+0.0010':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2):d=500:s=1080X1080'[zoom]'''
-    Margin = '''[zoom]pad=width=iw:height=ih+2*420:x=0:y=420:color=black'''
+    ZoomPan = '''[ScaleVideo]zoompan=z='zoom+0.0010':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2):d=500:s=480X480'[zoom]'''
+    Margin = '''[zoom]pad=width=iw:height=ih+2*187:x=0:y=187:color=black'''
     filter_complex = '-filter_complex "' + ScaleImage + ', ' + ScaleVideo + ', ' + ZoomPan + ', ' + Margin + '"' #this might be slower but idk
     print(filter_complex)
 
@@ -239,12 +239,13 @@ def CrossFade(path,subject):
     print(FLT)
 
     #write out the filter statment with all the other end stuff # TODO make hevc_nvenc work (issue using CUDA effectively)
-    s=s+f' -filter_complex "{FLT}" -map {PDV} -map {audio_map} -c:v libx265 -cq 18 -c:a aac -q:a 4 -map_metadata -1 -pix_fmt yuv420p -s:v 1080x1920 '+ ffmpeg_path +'VideoUnsub.mp4 -y -hide_banner'
+    s=s+f' -filter_complex "{FLT}" -map {PDV} -map {audio_map} -c:v libx265 -cq 18 -c:a aac -q:a 4 -map_metadata -1 -pix_fmt yuv420p -s:v 480x854 '+ ffmpeg_path +'VideoUnsub.mp4 -y -hide_banner'
+    # s=s+f' -filter_complex "{FLT}" -map {PDV} -map {audio_map} -c:v libx265 -cq 18 -c:a aac -q:a 4 -map_metadata -1 -pix_fmt yuv420p -s:v 1080x1920 '+ ffmpeg_path +'VideoUnsub.mp4 -y -hide_banner'
     print(s)
     os.system(s)
 
 def SubTitle(subject, path, Subtitle_Summary):
-    model = stable_whisper.load_model("base")
+    model = stable_whisper.load_model("base") #TODO run in dockerfile
     full_path = path
     result = model.align(os.path.join(full_path, 'VideoUnsub.mp4'), Subtitle_Summary, language='en', suppress_silence=False)
     print(result)
@@ -259,14 +260,8 @@ def SubTitle(subject, path, Subtitle_Summary):
 
     subtitles = '''subtitles=VideoFinal.srt:'''
     force_style = '''force_style=\'Alignment=2,OutlineColour=&H100000000,BorderStyle=3,Outline=1,Shadow=0,Fontsize=20,MarginL=5,MarginV=40\''''
-    draw_text = '''drawtext=text=''' + subject + ''':x=(w-text_w)/2:y=290:fontsize='''+TitleFontSize(subject)+''':fontcolor=white:fontfile=NotoSans_Condensed-SemiBold.ttf"'''
-    command = ('ffmpeg -y -i VideoUnsub.mp4 -filter_complex "'+ subtitles + force_style +', '+ draw_text +' "'+ subject +'_preResolution".mp4')
-    print(command)
-    subprocess.call(command,cwd=path, shell=True)
-
-    #makes the video resolution different for smaller emailing of files. Also placed here since we are not adding music right now
-    resolution = 'scale=480:854'
-    command = ('ffmpeg -y -i "'+ subject +'_preResolution".mp4 -vf "'+ resolution +'" -c:a copy "'+ subject +'".mp4')
+    draw_text = '''drawtext=text=''' + subject + ''':x=(w-text_w)/2:y=125:fontsize='''+TitleFontSize(subject)+''':fontcolor=white:fontfile=NotoSans_Condensed-SemiBold.ttf"'''
+    command = ('ffmpeg -y -i VideoUnsub.mp4 -filter_complex "'+ subtitles + force_style +', '+ draw_text +' "'+ subject +'".mp4')
     print(command)
     subprocess.call(command,cwd=path, shell=True)
 
@@ -296,8 +291,6 @@ def send_email(sender_email, sender_password, receiver_email, subject, path):
     # Send the email
     server.send_message(msg)
     server.quit()
-    #test
-    print(msg)
 
 def AddMusic(subject, path):
     music_path = os.path.join(base_path, 'Wikipedia-VideoMaker', 'Wikipedia-VideoMaker', 'music', 'Moonlight_Sonata.wav')
@@ -345,7 +338,6 @@ def SummaryChanges(summary):
         '-': ' ',
         '\u2013':' ',
         '\u2014':' ',
-        'I': '1',
         'II': '2',
         'Jr.': 'Junior'
         }
@@ -357,17 +349,17 @@ def SummaryChanges(summary):
 def TitleFontSize(subject):
     Length = len(subject)
     if Length <= 18:
-        Font_Size = 110
+        Font_Size = 55
     elif Length > 18 and Length <= 20:
-        Font_Size = 100
+        Font_Size = 50
     elif Length > 20 and Length <= 23:
-        Font_Size = 90
+        Font_Size = 45
     elif Length > 23 and Length <= 27:
-        Font_Size = 80
+        Font_Size = 40
     elif Length > 27 and Length <= 31:
-        Font_Size = 70
+        Font_Size = 35
     else:
-        Font_Size=60
+        Font_Size=30
     return str(Font_Size)
 
 
