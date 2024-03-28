@@ -4,7 +4,7 @@ FROM cnstark/pytorch:2.0.1-py3.10.11-cuda11.8.0-ubuntu22.04
 # cnstark/pytorch:2.0.1-py3.10.11-ubuntu22.04
 # https://github.com/cnstark/pytorch-docker?tab=readme-ov-file
 
-WORKDIR /
+WORKDIR /app
 
 # Copy the requirements file and install Python dependencies
 COPY requirements.txt requirements.txt
@@ -17,6 +17,8 @@ RUN apt-get update && \
 
 
 RUN python -m nltk.downloader punkt
+
+RUN python -c "from stable_whisper import load_model; model = load_model('base')"
 
 #testing with install for libcuda #TODO get this working since it is causing everything to be much slower
 # https://github.com/tensorflow/tensorflow/issues/10776
@@ -32,4 +34,4 @@ EXPOSE 80
 CMD ["python", "VideoMakerV10.py"]
 
 # To Run:
-# docker run -p 5000:80 -v "C:\Users\robbi\OneDrive\Documents\GitHub\WikiVideo\Wikipedia-VideoMaker\app\data:/app/data" wikivideo:latest
+# docker run -p 80:80 -v "C:\Users\robbi\OneDrive\Documents\GitHub\WikiVideo\Wikipedia-VideoMaker\app\data:/app/data" wikivideo:latest
