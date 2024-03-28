@@ -1,6 +1,6 @@
 from mods import *
 
-base_path = '/app'
+base_path = '/'
 
 def WikipediaSummaryGet(subject):
     summary = wikipedia.summary(subject, auto_suggest=False)

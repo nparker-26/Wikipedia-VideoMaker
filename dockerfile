@@ -4,7 +4,7 @@ FROM cnstark/pytorch:2.0.1-py3.10.11-cuda11.8.0-ubuntu22.04
 # cnstark/pytorch:2.0.1-py3.10.11-ubuntu22.04
 # https://github.com/cnstark/pytorch-docker?tab=readme-ov-file
 
-WORKDIR /app
+WORKDIR /
 
 # Copy the requirements file and install Python dependencies
 COPY requirements.txt requirements.txt
@@ -19,6 +19,16 @@ RUN apt-get update && \
 RUN python -m nltk.downloader punkt
 
 RUN python -c "from stable_whisper import load_model; model = load_model('base')"
+
+# Download file from https://myshell-public-repo-hosting.s3.amazonaws.com/checkpoints_1226.zip
+RUN wget https://myshell-public-repo-hosting.s3.amazonaws.com/checkpoints_1226.zip
+
+
+# Install Unzip
+RUN apt-get update && apt-get install -y unzip
+
+RUN unzip checkpoints_1226.zip
+
 
 #testing with install for libcuda #TODO get this working since it is causing everything to be much slower
 # https://github.com/tensorflow/tensorflow/issues/10776
