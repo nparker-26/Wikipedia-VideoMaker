@@ -44,4 +44,4 @@ EXPOSE 80
 CMD ["python", "VideoMakerV10.py"]
 
 # To Run:
-# docker run -p 80:80 -v "C:\Users\robbi\OneDrive\Documents\GitHub\WikiVideo\Wikipedia-VideoMaker\app\data:/app/data" wikivideo:latest
+# docker run -p 80:80 -v "C:\Users\robbi\OneDrive\Documents\Projects\WikiVideo\Wikipedia-VideoMaker\app\data:/app/data" nervouslabsappdev.azurecr.io/wikipedia-videomaker:latest
