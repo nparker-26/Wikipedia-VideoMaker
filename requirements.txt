@@ -24,6 +24,6 @@ inflect
 unidecode
 eng_to_ipa
 wavmark
-lxml
+lxml[html_clean]
 
 
