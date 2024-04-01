@@ -2,10 +2,14 @@ from mods import *
 
 base_path = '/'
 
-def WikipediaSummaryGet(subject):
+def WikipediaSummaryGet(url):
+    article = Article(url)
+    article.download()
+    article.parse()
+    subject = article.title
     summary = wikipedia.summary(subject, auto_suggest=False)
     summary = SummaryChanges(summary)
-    print(summary)
+    print(subject)
 
     # Split the paragraph into sentences
     summary = re.sub(r"\[.*?\]|\\(.*?\\)", "", summary)  # Removes brackets from article
@@ -14,7 +18,7 @@ def WikipediaSummaryGet(subject):
 
     # Count the number of sentences to produce a certain number of images
     ImageCount = max(int(len(sentences) * 1.25), 10)
-    return summary, sentences, ImageCount
+    return subject, sentences, ImageCount
 
 def URLSummaryGet(subject, path, url):
     full_path = path

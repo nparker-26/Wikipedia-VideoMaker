@@ -7,12 +7,12 @@ CORS(app)  # Enable CORS for all routes and origins
 @app.route('/process', methods=['POST'])
 def process():
     email = request.json['email']
-    subject = request.json['subject']
+    url = request.json['url']
     start_time = time.time()
     
     path = '/data/' + subject
 
-    summary, sentences, ImageCount = FunctionsV10.WikipediaSummaryGet(subject)
+    subject, sentences, ImageCount = FunctionsV10.WikipediaSummaryGet(url)
 
     first = FunctionsV10.ImproveSentences(sentences)
     sentences[0] = first
