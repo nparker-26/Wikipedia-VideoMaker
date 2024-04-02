@@ -10,11 +10,12 @@ def process():
     url = request.json['url']
     start_time = time.time()
     
-    path = '/data/' + subject
-
     subject, sentences, ImageCount = FunctionsV10.WikipediaSummaryGet(url)
 
+    path = '/data/' + subject
+    
     first = FunctionsV10.ImproveSentences(sentences)
+    
     sentences[0] = first
 
     bing_crawler = BingImageCrawler(downloader_threads=4, storage={'root_dir': path})
